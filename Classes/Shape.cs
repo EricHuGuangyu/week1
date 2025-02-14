@@ -7,12 +7,13 @@ namespace Week1ObjectOriented.Classes
 
         public abstract int GetArea();
        
-
         public void SetArea(int Area)
         {
             area = Area;
         }
 
         public string? Colour { get; set; }
+
+        public string? Name { get; set; }
     }
 }

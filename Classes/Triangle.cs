@@ -7,8 +7,9 @@ using Week1ObjectOriented.Interfaces;
 
 namespace Week1ObjectOriented.Classes
 {
-    public class Triangle : Shape, IFaces
+    public class Triangle : Shape, IFaces, IShape
     {
+        public int width,height;
         public override int GetArea()
         {
             throw new NotImplementedException();
@@ -17,6 +18,11 @@ namespace Week1ObjectOriented.Classes
         public int GetFaces()
         {
             throw new NotImplementedException();
+        }
+
+        double IShape.GetArea()
+        {
+            return width * height / 2;
         }
     }
 }
