@@ -1,0 +1,56 @@
+SELECT  c.Id AS [Customer Id], c.FirstName, c.LastName, { fn CONCAT(c.FirstName + ' ', c.LastName) } AS [Full Name], s.DateSold, 
+                   p.Name, p.Price, dbo.GetCustomerAmount(c.Id) AS [Total Purchases], dbo.CalculateAge(c.DateOfBirth) AS Age, 
+                   { fn CONCAT(st.Name + ' ', st.Location) } AS Store
+FROM      dbo.Customer AS c LEFT OUTER JOIN
+                   dbo.Sale AS s ON c.Id = s.CustomerId LEFT OUTER JOIN
+                   dbo.Product AS p ON s.ProductId = p.Id LEFT OUTER JOIN
+                   dbo.Store AS st ON st.Id = s.StoreId
+
+
+USE [IndustryConnectWeek2-1]
+GO
+/****** Object:  UserDefinedFunction [dbo].[CalculateAge]    Script Date: 2025/2/25 16:14:13 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER FUNCTION [dbo].[CalculateAge] (@BirthDate DATE)
+RETURNS INT
+AS
+BEGIN
+    RETURN DATEDIFF(YEAR, @BirthDate, GETDATE()) 
+           - CASE 
+               WHEN DATEADD(YEAR, DATEDIFF(YEAR, @BirthDate, GETDATE()), @BirthDate) > GETDATE() 
+               THEN 1 
+               ELSE 0 
+             END;
+END;
+
+
+CREATE TABLE [dbo].[Store](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](30) NULL,
+	[Location] [nvarchar](240) NULL,
+ CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+INSERT [dbo].[Store] ([Name], [Location]) VALUES ('Albany', 'Sandford St, Campbells Bay, Auckland')
+GO
+INSERT [dbo].[Store] ([Name], [Location]) VALUES ('WestField', 'Connaught Dr, Islington, Christchurch')
+GO
+INSERT [dbo].[Store] ([Name], [Location]) VALUES ('Eden Mount', 'Sunrise Ave, Owhata, Rotorua')
+GO
+
+
+-- Add StoreId column
+ALTER TABLE [dbo].[Sale]
+ADD [StoreId] INT;
+GO
+-- Add foreign key
+ALTER TABLE [dbo].[Sale]
+ADD CONSTRAINT [FK_Sale_Store] FOREIGN KEY([StoreId])
+REFERENCES [dbo].[Store] ([Id]);
+GO
